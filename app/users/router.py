@@ -1,7 +1,8 @@
 from pydoc import resolve
-from fastapi import APIRouter, HTTPException, status
-from h11 import Response
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import Response
 from app.users.dao import UsersDAO
+from app.users.dependencies import get_current_user
 from app.users.schemas import SUserAuth
 from app.users.auth import authenticate_user, create_access_token, get_password_hash
 
@@ -26,4 +27,11 @@ async def login_user(response: Response, user_data: SUserAuth):
     access_token = create_access_token({"sub": str(user.id)})
     response.set_cookie("booking_access_token", access_token, httponly = True)
     return access_token
-  
+
+@router.post("/logout")
+async def logout_user(response: Response):
+    response.delete_cookie("booking_access_token")
+
+@router.post("/me")
+async def read_users_me(current_user = Depends(get_current_user)):
+    return current_user

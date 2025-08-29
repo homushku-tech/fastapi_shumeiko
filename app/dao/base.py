@@ -1,6 +1,6 @@
 from app.database import async_session_maker
 
-from sqlalchemy import select, insert
+from sqlalchemy import select, insert, update, delete
 
 class BaseDAO:
     model = None
@@ -31,3 +31,27 @@ class BaseDAO:
             query = insert(cls.model).values(**data)
             await session.execute(query)
             await session.commit()
+
+    @classmethod
+    async def update(cls, model_id: int, **data):
+        async with async_session_maker() as session:
+            query = (
+                update(cls.model)
+                .where(cls.model.id == model_id)
+                .values(**data)
+                .execution_options(synchronize_session="fetch")
+            )
+            await session.execute(query)
+            await session.commit()
+
+    @classmethod
+    async def delete(cls, model_id: int):
+        async with async_session_maker() as session:
+            query = (
+                delete(cls.model)
+                .where(cls.model.id == model_id)
+                .execution_options(synchronize_session="fetch")
+            )
+            await session.execute(query)
+            await session.commit()
+   
