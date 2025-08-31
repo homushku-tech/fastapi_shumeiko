@@ -6,6 +6,7 @@ from app.users.dependencies import get_current_user
 from app.users.schemas import SUserAuth
 from app.users.auth import authenticate_user, create_access_token, get_password_hash
 
+
 router = APIRouter(
     prefix="/users",
     tags=["Auth & Пользователи"],

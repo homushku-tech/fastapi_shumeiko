@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends
-
-from app.hotels.dao import HotelsDAO
-from app.hotels.schemas import SHotels
+from app.hotels.rooms.dao import RoomsDAO
+from app.hotels.rooms.schemas import RoomsSearchArgs, SRooms
 from app.users.dependencies import get_current_user
 from app.users.models import Users
+
 
 router = APIRouter(
     prefix="/{hotels_id}/rooms",
@@ -11,5 +11,13 @@ router = APIRouter(
 )
 
 @router.get("")
-async def get_rooms(user: Users = Depends(get_current_user)) -> list[SHotels]:
-    return await HotelsDAO.find_all()
+async def get_rooms() -> list[SRooms]:
+    return await RoomsDAO.find_all()
+
+@router.post("")
+async def post_rooms(
+    hotel_id: int,
+    room_data: RoomsSearchArgs = Depends()
+):
+    new_room = await RoomsDAO.add(hotel_id = hotel_id, **room_data.__dict__)
+    return new_room
