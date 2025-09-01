@@ -17,6 +17,14 @@ class SRooms(BaseModel):
         from_attributes = True
 
 
+class SRoomInfo(SRooms):
+    total_cost: int
+    rooms_left: int
+
+    class Config:
+        from_attributes = True
+
+
 class RoomsSearchArgs:
     def __init__(
         self,

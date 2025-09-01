@@ -1,23 +1,22 @@
-from fastapi import APIRouter, Depends
+from datetime import date, datetime, timedelta
+from fastapi_cache.decorator import cache
+from fastapi import APIRouter, Depends, Query
 from app.hotels.rooms.dao import RoomsDAO
-from app.hotels.rooms.schemas import RoomsSearchArgs, SRooms
-from app.users.dependencies import get_current_user
-from app.users.models import Users
+from app.hotels.rooms.schemas import SRoomInfo
 
 
 router = APIRouter(
-    prefix="/{hotels_id}/rooms",
+    prefix="/{hotel_id}/rooms",
     tags=["Номера в отели"],
 )
 
 @router.get("")
-async def get_rooms() -> list[SRooms]:
-    return await RoomsDAO.find_all()
-
-@router.post("")
-async def post_rooms(
+@cache(expire=20)
+async def get_rooms_by_time(
     hotel_id: int,
-    room_data: RoomsSearchArgs = Depends()
-):
-    new_room = await RoomsDAO.add(hotel_id = hotel_id, **room_data.__dict__)
-    return new_room
+    date_from: date = Query(..., description=f"Например, {datetime.now().date()}"),
+    date_to: date = Query(..., description=f"Например, {(datetime.now() + timedelta(days=14)).date()}"),
+) -> list[SRoomInfo]:
+    rooms = await RoomsDAO.find_all(hotel_id, date_from, date_to)
+    return rooms
+

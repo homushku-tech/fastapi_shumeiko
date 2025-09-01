@@ -15,6 +15,11 @@ class SHotels(BaseModel):
     class Config:
         from_attributes = True
 
+class SHotelInfo(SHotels):
+    rooms_left: int
+
+    class Config:
+        from_attributes = True
 
 class HotelSearchArgs:
     def __init__(
